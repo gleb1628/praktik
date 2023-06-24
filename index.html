@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Браузер</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #222;
+        color: white;
+      }
+      
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .header {
+        font-size: 36px;
+        margin-bottom: 20px;
+      }
+
+      .form {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .form label {
+        font-size: 24px;
+        margin-right: 10px;
+      }
+
+      .form input[type="text"] {
+        padding: 6px;
+        font-size: 24px;
+        border-radius: 5px;
+        outline: none;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+      }
+
+      .form button {
+        padding: 6px 12px;
+        font-size: 24px;
+        background-color: #008cff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .form button:hover {
+        background-color: #0057b3;
+      }
+
+      .results {
+        width: 80%;
+        margin: 0 auto;
+      }
+
+      .results h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      .results ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .results li {
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+
+      .results a {
+        color: #008cff;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .results a:hover {
+        color: #0057b3;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="header">Поиск</h1>
+      <form class="form" onsubmit="event.preventDefault(); sendRequest()">
+        <label for="keywordInput">Введите:</label>
+        <input type="text" id="keywordInput" placeholder="Например, шляпа" />
+        <button>Искать</button>
+      </form>
+
+      <div class="results">
+        <h2>Результаты:</h2>
+        <ul id="resultsList"></ul>
+      </div>
+    </div>
+
+    <script>
+      function sendRequest() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/search", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              let response = JSON.parse(xhr.responseText);
+              showResults(response);
+            } else {
+              console.error("Ошибка");
+            }
+          }
+        };
+        let keyword = document.getElementById("keywordInput").value;
+        let data = JSON.stringify({ keyword: keyword });
+        xhr.send(data);
+      }
+      
+      function showResults(results) {
+        let resultsContainer = document.getElementById("resultsList");
+        resultsContainer.innerHTML = "";
+
+        if (results.length === 0) {
+          let noResultsMsg = document.createElement("p");
+          noResultsMsg.textContent =
+            "Нет результатов";
+          resultsContainer.appendChild(noResultsMsg);
+        } else {
+          results.forEach(function (url) {
+            let link = document.createElement("a");
+            link.href = url;
+            link.textContent = url;
+
+            let listItem = document.createElement("li");
+            listItem.appendChild(link);
+
+            resultsContainer.appendChild(listItem);
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
